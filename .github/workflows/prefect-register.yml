@@ -1,0 +1,9 @@
+name: prefect-register
+
+on: [push]
+
+jobs:
+  build:
+    name: register
+    runs-on: ubuntu-latest
+    run: prefect auth login --key $PREFECT_TOKEN && prefect auth switch-tenants -s blef && prefect register --project "links-page-backend" --path "./links_backend_prefect.py"

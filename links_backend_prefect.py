@@ -5,6 +5,7 @@ import ssl
 import feedparser
 import requests
 import gspread
+import json
 
 from urllib.parse import urlparse
 from collections import Counter
@@ -16,6 +17,7 @@ from prefect.schedules import CronSchedule
 from prefect.storage import GitHub
 from prefect.run_configs import LocalRun
 from prefect.client import Secret
+from prefect.tasks.secrets import PrefectSecret
 
 ### RSS FEED LINK
 RSS = "https://www.blef.fr/datanews/xml/"
@@ -28,6 +30,9 @@ CLIENT_SECRET = "./blef_link_gathering/client_secret.json"
 SHEET_NAME = "blef_links"
 SHEET_ID = "22868124"
 CSV_FILE_NAME = "./blef_link_gathering/links.csv"
+
+### GITHUB TOKEN
+GITHUB_TOKEN = Secret("GITHUB_TOKEN").get()
 
 ### KEYWORDS
 DATA_FUNDRAISING = ["data fundraising"]
@@ -288,7 +293,7 @@ def send_gsheet(client_secret, sheet_name, csv_file_name):
         "https://www.googleapis.com/auth/drive.file",
         "https://www.googleapis.com/auth/drive",
     ]
-    credentials = ServiceAccountCredentials.from_json_keyfile_name(client_secret, scope)
+    credentials = ServiceAccountCredentials.from_json_keyfile_dict(client_secret,scopes=scope)
     client = gspread.authorize(credentials)
     spreadsheet = client.open(sheet_name)
     body = {
@@ -320,7 +325,7 @@ flow_scheduler = CronSchedule(
 flow_storage = GitHub(
     repo="blefr/links-page-backend",
     path="links_backend_prefect.py",
-    access_token_secret=str(Secret("GITHUB_TOKEN").get())
+    access_token_secret=GITHUB_TOKEN
 )
 
 
@@ -330,7 +335,7 @@ def prefect_flow():
         categorisation(ALL_LINKS)
         LINKS_CATEGORISED = sort_links()
         write_csv(LINKS_CATEGORISED)
-        send_gsheet(CLIENT_SECRET, SHEET_NAME, CSV_FILE_NAME)
+        send_gsheet(PrefectSecret("GCP_CREDENTIALS"), SHEET_NAME, CSV_FILE_NAME)
         print("done :D")
     return flow
 
