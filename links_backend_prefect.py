@@ -31,7 +31,7 @@ SHEET_ID = "22868124"
 CSV_FILE_NAME = "./blef_link_gathering/links.csv"
 
 ### GITHUB TOKEN
-GITHUB_TOKEN = PrefectSecret("GITHUB_TOKEN")
+GITHUB_TOKEN = "GITHUB_TOKEN"
 
 ### KEYWORDS
 DATA_FUNDRAISING = ["data fundraising"]
