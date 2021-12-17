@@ -9,5 +9,5 @@ jobs:
     run: 
       cd /home/blef
       source virtualenvs/prefect/bin/activate
-      pip install prefect['github'] && pip install -r requirements.txt
+      pip install -r requirements.txt && pip install 'prefect[github]'
       prefect auth login --key $PREFECT_TOKEN && prefect auth switch-tenants -s blef && prefect register --project "links-page-backend" --path "./links-page-backend/links_backend_prefect.py"

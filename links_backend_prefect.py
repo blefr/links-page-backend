@@ -5,7 +5,6 @@ import ssl
 import feedparser
 import requests
 import gspread
-import json
 
 from urllib.parse import urlparse
 from collections import Counter
@@ -32,7 +31,7 @@ SHEET_ID = "22868124"
 CSV_FILE_NAME = "./blef_link_gathering/links.csv"
 
 ### GITHUB TOKEN
-GITHUB_TOKEN = Secret("GITHUB_TOKEN").get()
+GITHUB_TOKEN = PrefectSecret("GITHUB_TOKEN")
 
 ### KEYWORDS
 DATA_FUNDRAISING = ["data fundraising"]
@@ -342,5 +341,5 @@ def prefect_flow():
 
 if __name__ == '__main__':  
     flow = prefect_flow()
-    #flow.run()
+    flow.register(project_name="links-page-backend")
 
