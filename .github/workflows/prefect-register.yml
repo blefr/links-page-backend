@@ -6,6 +6,8 @@ jobs:
   build:
     name: register
     runs-on: ubuntu-latest
+    env: 
+      PREFECT_TOKEN: ${{ secrets.PREFECT_TOKEN }}
     run: 
       cd /home/blef
       source virtualenvs/prefect/bin/activate
