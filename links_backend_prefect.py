@@ -324,7 +324,6 @@ flow_scheduler = CronSchedule(
 flow_storage = GitHub(
     repo="blefr/links-page-backend",
     path="links_backend_prefect.py",
-    access_token_secret=GITHUB_TOKEN
 )
 
 
