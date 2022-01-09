@@ -237,7 +237,7 @@ def categorisation(links):
 #        if index == 20:
 #           break
         try:
-            html_text = requests.get(link[0], headers=HEADERS).text
+            html_text = requests.get(link[0], headers=HEADERS, allow_redirects=False).text
             page = BeautifulSoup(html_text, "html.parser")
             if "github" in link[0]:
                 if page.article:
