@@ -25,10 +25,9 @@ RSS = "https://www.blef.fr/datanews/xml/"
 HEADERS = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
 
 ### GOOGLE SHEET CREDITENTIALS
-CLIENT_SECRET = "./blef_link_gathering/client_secret.json"
 SHEET_NAME = "blef_links"
 SHEET_ID = "22868124"
-CSV_FILE_NAME = "./blef_link_gathering/links.csv"
+CSV_FILE_NAME = "./links.csv"
 
 ### GITHUB TOKEN
 GITHUB_TOKEN = "GITHUB_TOKEN"
