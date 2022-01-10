@@ -261,8 +261,8 @@ def categorisation(links):
 
 
 @task
-def sort_links():
-    sorted_links = sorted(LINKS_CATEGORISED,key = lambda x: ''.join(filter(str.isdigit, x[2])), reverse = True)
+def sort_links(links):
+    sorted_links = sorted(links,key = lambda x: ''.join(filter(str.isdigit, x[2])), reverse = True)
     return sorted_links
 
 
