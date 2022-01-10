@@ -25,9 +25,10 @@ RSS = "https://www.blef.fr/datanews/xml/"
 HEADERS = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
 
 ### GOOGLE SHEET CREDITENTIALS
+CLIENT_SECRET = "./blef_link_gathering/client_secret.json"
 SHEET_NAME = "blef_links"
 SHEET_ID = "22868124"
-CSV_FILE_NAME = "./links.csv"
+CSV_FILE_NAME = "./blef_link_gathering/links.csv"
 
 ### GITHUB TOKEN
 GITHUB_TOKEN = "GITHUB_TOKEN"
@@ -179,6 +180,7 @@ def get_blef_rss(rss):
         if entry.has_key("content"):
             get_links(entry)
     print("total links : ", len(ALL_LINKS))
+    return ALL_LINKS
 
 
 def find_title_categories(title):
@@ -236,7 +238,7 @@ def categorisation(links):
 #        if index == 20:
 #           break
         try:
-            html_text = requests.get(link[0], headers=HEADERS, allow_redirects=False).text
+            html_text = requests.get(link[0], headers=HEADERS).text
             page = BeautifulSoup(html_text, "html.parser")
             if "github" in link[0]:
                 if page.article:
@@ -256,6 +258,7 @@ def categorisation(links):
             LINKS_CATEGORISED.append(find_properties(link[0], category, link[1], page))
         except ValueError:
             print(link[0])
+    return LINKS_CATEGORISED
 
 
 @task
@@ -274,10 +277,11 @@ def write_csv(links):
     with open(CSV_FILE_NAME, "w+", newline="") as f:
         w = csv.writer(f)
         w.writerows(links)
+    return True
 
 
 @task
-def send_gsheet(client_secret, sheet_name, csv_file_name):
+def send_gsheet(task_4, client_secret, sheet_name, csv_file_name):
     """
     sends a csv file to an existing google sheet
 
@@ -322,21 +326,22 @@ flow_scheduler = CronSchedule(
 )
 flow_storage = GitHub(
     repo="blefr/links-page-backend",
-    path="./links_backend_prefect.py",
+    path="links_backend_prefect.py",
+    access_token_secret=GITHUB_TOKEN
 )
 
 
 def prefect_flow():
     with Flow(name='backend-links', storage=flow_storage) as flow:
         task_1 = get_blef_rss(RSS)
-        task_2 = categorisation(ALL_LINKS)
-        LINKS_CATEGORISED = sort_links()
-        task_3 = write_csv(LINKS_CATEGORISED)
-        task_4 = send_gsheet(PrefectSecret("GCP_CREDENTIALS"), SHEET_NAME, CSV_FILE_NAME)
+        task_2 = categorisation(task_1)
+        task_3 = sort_links(task_2)
+        task_4 = write_csv(task_3)
+        task_5 = send_gsheet(task_4, PrefectSecret("GCP_CREDENTIALS"), SHEET_NAME, CSV_FILE_NAME)
         print("done :D")
     return flow
 
 
-flow = prefect_flow()
-#flow.register(project_name="links-page-backend")
-
+if __name__ == '__main__':  
+    flow = prefect_flow()
+    flow.run(project_name="links-page-backend")
