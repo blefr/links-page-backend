@@ -25,10 +25,9 @@ RSS = "https://www.blef.fr/datanews/xml/"
 HEADERS = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
 
 ### GOOGLE SHEET CREDITENTIALS
-CLIENT_SECRET = "./blef_link_gathering/client_secret.json"
 SHEET_NAME = "blef_links"
 SHEET_ID = "22868124"
-CSV_FILE_NAME = "./blef_link_gathering/links.csv"
+CSV_FILE_NAME = "./links.csv"
 
 ### GITHUB TOKEN
 GITHUB_TOKEN = "GITHUB_TOKEN"
@@ -238,7 +237,7 @@ def categorisation(links):
 #        if index == 20:
 #           break
         try:
-            html_text = requests.get(link[0], headers=HEADERS).text
+            html_text = requests.get(link[0], headers=HEADERS, allow_redirects=False).text            
             page = BeautifulSoup(html_text, "html.parser")
             if "github" in link[0]:
                 if page.article:
@@ -326,7 +325,7 @@ flow_scheduler = CronSchedule(
 )
 flow_storage = GitHub(
     repo="blefr/links-page-backend",
-    path="links_backend_prefect.py",
+    path="./links_backend_prefect.py",
     access_token_secret=GITHUB_TOKEN
 )
 
@@ -343,4 +342,4 @@ def prefect_flow():
 
 if __name__ == '__main__':  
     flow = prefect_flow()
-    flow.register(project_name="links-page-backend")
+    #flow.register(project_name="links-page-backend")
