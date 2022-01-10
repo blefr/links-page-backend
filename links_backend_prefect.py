@@ -341,7 +341,6 @@ def prefect_flow():
         print("done :D")
     return flow
 
-
 if __name__ == '__main__':  
     flow = prefect_flow()
-    flow.run(project_name="links-page-backend")
+    flow.register(project_name="links-page-backend")
