@@ -331,15 +331,15 @@ flow_storage = GitHub(
 
 
 def prefect_flow():
-    with Flow(name='backend-links', storage=flow_storage) as flow:
+     with Flow(name='backend-links', schedule=flow_scheduler, storage=flow_storage) as flow:
         task_1 = get_blef_rss(RSS)
         task_2 = categorisation(task_1)
         task_3 = sort_links(task_2)
         task_4 = write_csv(task_3)
         task_5 = send_gsheet(task_4, PrefectSecret("GCP_CREDENTIALS"), SHEET_NAME, CSV_FILE_NAME)
-        print("done :D")
+        task_6 = print("done :D")
     return flow
 
 if __name__ == '__main__':  
     flow = prefect_flow()
-    #flow.register(project_name="links-page-backend")
+    flow.register(project_name="links-page-backend")
