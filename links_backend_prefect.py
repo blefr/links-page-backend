@@ -5,6 +5,7 @@ import ssl
 import feedparser
 import requests
 import gspread
+import time
 
 from urllib.parse import urlparse
 from collections import Counter
@@ -106,7 +107,7 @@ def filter_link(link):
         return False
 
 
-def find_properties(link, category, newsletter_title, page):
+def find_properties(link, category, newsletter_title, page, newsletter_date):
     """
     finds published time, article title and article description
 
@@ -131,7 +132,7 @@ def find_properties(link, category, newsletter_title, page):
             description = desc["content"]
         except KeyError:
             pass
-    return [f"{link} ", category, newsletter_title, published_time, title, description]
+    return [f"{link} ", category, newsletter_title, published_time, title, description, newsletter_date]
 
 
 def get_links(entry):
@@ -152,7 +153,7 @@ def get_links(entry):
                 html_text = requests.get(n, headers=HEADERS).text
                 page = BeautifulSoup(html_text, "html.parser")
                 LINKS_CATEGORISED.append(
-                    find_properties(n, DATA_FUNDRAISING[0], entry.title, page)
+                    find_properties(n, DATA_FUNDRAISING[0], entry.title, page, entry.published_parsed)
                 )
     if match_link:
         for m in match_link:
@@ -160,9 +161,9 @@ def get_links(entry):
             if filter_link(n):
                 if match_datafund:
                     if n not in match_datafund[0]:
-                        ALL_LINKS.append([n, entry.title])
+                        ALL_LINKS.append([n, entry.title, entry.published_parsed])
                 else:
-                    ALL_LINKS.append([n, entry.title])
+                    ALL_LINKS.append([n, entry.title, entry.published_parsed])
 
 
 @task
@@ -254,7 +255,7 @@ def categorisation(links):
                     category = cat
                 elif i != 0:
                     category += f",{cat}"
-            LINKS_CATEGORISED.append(find_properties(link[0], category, link[1], page))
+            LINKS_CATEGORISED.append(find_properties(link[0], category, link[1], page, link[2]))
         except ValueError:
             print(link[0])
     return LINKS_CATEGORISED
@@ -262,7 +263,7 @@ def categorisation(links):
 
 @task
 def sort_links(links):
-    sorted_links = sorted(links,key = lambda x: ''.join(filter(str.isdigit, x[2])), reverse = True)
+    sorted_links = sorted(links, key = lambda x: x[6], reverse = True)
     return sorted_links
 
 
